@@ -11,6 +11,7 @@ The Personal Assistant (PA) persona transforms an OpenClaw agent into a proactiv
 * **Task Extraction:** Parsing emails, meeting notes, and messages to extract actionable tasks and deadlines.
 * **Proactive Adaptation:** Learning from your preferences over time to anticipate needs and streamline workflows.
 * **Phishing Defense:** Identifying and flagging potentially malicious or socially engineered communications.
+* **Document Coolaboration** Full support for collaborating with Onedrive and Sharepoint files, making working with your PA easier than ever. 
 
 ## The Required Ecosystem
 
