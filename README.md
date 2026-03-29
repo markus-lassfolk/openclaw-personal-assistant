@@ -18,7 +18,7 @@ The Personal Assistant (PA) persona transforms an OpenClaw agent into a proactiv
 To fully empower the Personal Assistant persona, several plugins and tools need to be integrated into your OpenClaw environment:
 
 * **[m365-agent-cli](https://github.com/markus-lassfolk/m365-agent-cli):** The core Microsoft 365 tool integration for accessing Exchange, Calendar, Teams, and OneDrive.
-* **[openclaw-hybrid-memory](https://github.com/markus-lassfolk/openclaw-hybrid-memory):** Essential for semantic memory, enabling the PA to remember preferences, past interactions, and ongoing context.
+* **[openclaw-hybrid-memory](https://github.com/markus-lassfolk/openclaw-hybrid-memory):** Essential for semantic memory, enabling the PA to remember preferences, past interactions, and ongoing context. HIGHLY Recommended for all Openclaw installations!
 * **[humanizer](https://github.com/brandonwise/humanizer):** A tool to adapt writing styles, ensuring the PA communicates naturally and aligns with your personal tone.
 * **[Anthropic Skills](https://github.com/anthropics/skills/tree/main/skills):** Specifically the `doc-coauthoring`, `pptx`, `docx`, and `xlsx` skills to allow the PA to read, draft, and modify Office documents seamlessly.
 
