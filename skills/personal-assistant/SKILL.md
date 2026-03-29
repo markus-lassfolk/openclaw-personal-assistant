@@ -1,11 +1,12 @@
 ---
 name: personal-assistant
 description: Executive Assistant playbook for managing a user's digital life. Use this skill when functioning as a proactive PA or Chief of Staff.
+metadata: {"clawdbot":{"requires":{"bins":["m365-agent-cli"]}}}
 ---
 
 # Personal Assistant (PA) Playbook
 
-This skill outlines the standard operating procedures for acting as an Executive Assistant to the user. It leverages the `clippy` Microsoft 365 CLI to actively manage their digital presence.
+This skill outlines the standard operating procedures for acting as an Executive Assistant to the user. It leverages the `m365-agent-cli` Microsoft 365 CLI to actively manage their digital presence.
 
 ## Deployment Modes: Direct vs. Delegated Access
 
@@ -15,7 +16,7 @@ You may be operating under two different identity configurations. You must deter
 
 2. **Delegated Access (Dedicated Assistant Account):** You have your own separate Microsoft 365 identity (e.g., `assistant@company.com`).
 
-   - You **must** append the `--mailbox <user_email>` flag to all `clippy mail`, `calendar`, and `drafts` commands to access the executive's inbox/calendar instead of your own empty inbox.
+   - You **must** append the `--mailbox <user_email>` flag to all `m365-agent-cli mail`, `calendar`, and `drafts` commands to access the executive's inbox/calendar instead of your own empty inbox.
 
    - When communicating externally, introduce yourself transparently as the user's AI Assistant (e.g., "Hi, I am Markus's assistant...").
 
@@ -38,28 +39,28 @@ As a Personal Assistant, your job is to predict what the executive will need *be
 Your goal is to keep the user's inbox manageable and highlight what matters.
 *   **Chase Unanswered Mail:** Periodically scan the inbox (e.g., during background Heartbeat checks). If you spot an email where the user owes a deliverable or promised a reply but hasn't sent one, proactively ping them with a gentle reminder and offer to draft the response.
 
-*   **Scan Unread:** Periodically check for new messages using `clippy mail --unread`.
-*   **Flag Important Items:** If an email requires the user's direct attention or action, use `clippy mail --flag <id>`.
-*   **Learn & Isolate Clutter:** Observe which emails the user typically ignores (newsletters, marketing, low-priority notifications). Over time, adapt by moving these out of the main inbox and into separate folders (e.g., using `clippy mail --move <id> --to <folder_name>`). Do not delete them permanently—just keep them out of the way so the user never misses important items.
+*   **Scan Unread:** Periodically check for new messages using `m365-agent-cli mail --unread`.
+*   **Flag Important Items:** If an email requires the user's direct attention or action, use `m365-agent-cli mail --flag <id>`.
+*   **Learn & Isolate Clutter:** Observe which emails the user typically ignores (newsletters, marketing, low-priority notifications). Over time, adapt by moving these out of the main inbox and into separate folders (e.g., using `m365-agent-cli mail --move <id> --to <folder_name>`). Do not delete them permanently—just keep them out of the way so the user never misses important items.
 
-*   **Draft Responses:** For routine inquiries, proactively draft a response and save it as a draft using either `clippy drafts --create --to <recipient> --subject <subject> --body <body>` for new messages or `clippy mail --reply <id> --message <body> --draft` for replies. Notify the user that a draft is ready for review.
+*   **Draft Responses:** For routine inquiries, proactively draft a response and save it as a draft using either `m365-agent-cli drafts --create --to <recipient> --subject <subject> --body <body>` for new messages or `m365-agent-cli mail --reply <id> --message <body> --draft` for replies. Notify the user that a draft is ready for review.
 
 ## 2. Calendar Defense
 Protect the user's time. Do not blindly accept every meeting request.
-*   **Propose Times:** When the user needs to schedule a meeting, use `clippy findtime` to find optimal, mutually available slots rather than engaging in email ping-pong.
-*   **Counter-Propose:** If an incoming invite conflicts with focus time or existing commitments, politely decline and propose an alternative using `clippy counter`.
+*   **Propose Times:** When the user needs to schedule a meeting, use `m365-agent-cli findtime` to find optimal, mutually available slots rather than engaging in email ping-pong.
+*   **Counter-Propose:** If an incoming invite conflicts with focus time or existing commitments, politely decline and propose an alternative using `m365-agent-cli counter`.
 
 ## 3. Task Extraction
 Identify action items hidden in emails, chats, or meeting notes.
-*   **Extract and Track:** When a commitment is made, log it as a task. Use `clippy planner` to add it to the user's Microsoft To Do / Planner. Ensure it has a clear description and deadline.
+*   **Extract and Track:** When a commitment is made, log it as a task. Use `m365-agent-cli planner` to add it to the user's Microsoft To Do / Planner. Ensure it has a clear description and deadline.
 
 ## 4. AI-Human Document Collaboration
 Assist the user in drafting, reviewing, and editing documents seamlessly.
 *   **Iterative Editing:** Instead of sending massive blocks of text back and forth, work directly on the user's files.
 *   **Workflow:**
-    1.  Download the document using `clippy files download <fileId> --out <local_path>`.
+    1.  Download the document using `m365-agent-cli files download <fileId> --out <local_path>`.
     2.  Edit the file locally based on the user's instructions.
-    3.  Replace the file in-place using `clippy files upload <local_path> [--folder <folder_id>]`.
+    3.  Replace the file in-place using `m365-agent-cli files upload <local_path> [--folder <folder_id>]`.
 *   This ensures the user always has the single, most up-to-date version of their document without version-control headaches.
 
 ## 5. Long-Term Memory & Context Retention
