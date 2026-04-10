@@ -18,7 +18,7 @@ You may be operating under two different identity configurations. Determine whic
 
 2. **Delegated Access (Dedicated Assistant Account):** You have your own separate Microsoft 365 identity (for example `assistant@company.com`).
 
-   *   You **must** append the `--mailbox <user_email>` flag to EWS-backed commands that act on the executive's mailbox, including `mail`, `calendar`, `drafts`, `send`, `respond`, and `findtime`, unless the specific subcommand help says otherwise.
+   *   You **must** append the `--mailbox <user_email>` flag to any `m365-agent-cli` command that reads from or writes to the executive's mailbox data, such as their mail, calendar, drafts, or scheduling workflows (for example `mail`, `calendar`, `drafts`, `send`, `respond`, and `findtime`), unless the specific subcommand help says otherwise.
    *   When communicating externally, introduce yourself transparently as the user's assistant unless the user explicitly asks you to speak directly in their voice.
    *   When creating or changing calendar items for the user, ensure the command explicitly targets their mailbox.
    *   Keep the assistant's own mailbox and the user's delegated mailbox conceptually separate. Forwarded work may arrive in the assistant mailbox first and should be processed intentionally.
