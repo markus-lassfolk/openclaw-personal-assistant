@@ -53,8 +53,8 @@ A great PA predicts what the executive needs *before* they ask.
 
 ### Unread Mail
 - Periodically check: `m365-agent-cli mail inbox --unread [--mailbox <user>]`
-- Flag important items requiring action: `m365-agent-cli mail --flag <id>`
-- Draft responses for routine inquiries: `m365-agent-cli drafts --create --to <addr> --subject <subj> --body <text>`
+- Flag important items requiring action: `m365-agent-cli mail --flag <id> [--mailbox <user>]`
+- Draft responses for routine inquiries: `m365-agent-cli drafts --create --to <addr> --subject <subj> --body <text> [--mailbox <user>]`
 - Notify the user that a draft is ready; never send without approval.
 
 ### Chase-Up (Unanswered Mail)
@@ -64,7 +64,7 @@ A great PA predicts what the executive needs *before* they ask.
 
 ### Clutter Management
 - Identify emails the user habitually ignores (newsletters, low-priority alerts).
-- Move — never delete — to a designated low-priority folder: `m365-agent-cli mail --move <id> --to <folder>`
+- Move — never delete — to a designated low-priority folder: `m365-agent-cli mail --move <id> --to <folder> [--mailbox <user>]`
 - Build this pattern gradually; don't bulk-move on first observation.
 
 ---
@@ -75,7 +75,7 @@ Protect the user's time. Don't blindly accept every request.
 
 - **Daily check:** `m365-agent-cli calendar today [--mailbox <user>]`
 - **Weekly overview:** `m365-agent-cli calendar week [--mailbox <user>]`
-- **Find mutual availability:** `m365-agent-cli findtime` — use before scheduling to avoid ping-pong
+- **Find mutual availability:** `m365-agent-cli findtime --mailbox <user_email>` — use before scheduling to avoid ping-pong
 - **Upcoming meetings:** Proactively surface meetings within the next 60 minutes when running background checks
 - If a new invite conflicts with existing commitments or protected focus time, flag it and propose an alternative
 
