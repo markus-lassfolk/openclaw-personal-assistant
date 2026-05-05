@@ -173,7 +173,7 @@
         {
           "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
           "passed": true,
-          "evidence": "Inbox-priority header=True, bullets under that header=3, total bullet lines=5 (require header plus 1-3 bullets)."
+          "evidence": "Inbox-priority header=True, bullets per matching section=[3], total in priority sections=3, all bullet lines in doc=5 (require 1-3 bullets summed across all inbox/priority/overdue sections)."
         }
       ],
       "notes": []
@@ -206,7 +206,7 @@
         {
           "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
           "passed": false,
-          "evidence": "Inbox-priority header=False, bullets under that header=0, total bullet lines=0 (require header plus 1-3 bullets)."
+          "evidence": "Inbox-priority header=False, bullets per matching section=[], total in priority sections=0, all bullet lines in doc=0 (require 1-3 bullets summed across all inbox/priority/overdue sections)."
         }
       ],
       "notes": []

@@ -18,6 +18,7 @@ SKILL = REPO / "skills" / "personal-assistant"
 EVALS_JSON = SKILL / "evals" / "evals.json"
 ITER = REPO / "eval-workspace" / "iteration-1"
 GRADER = REPO / "tools" / "pa_skill_grader.py"
+REGENERATE_BENCH = REPO / "tools" / "regenerate_pa_benchmark_json.py"
 _AGG_CANDIDATES = [
     Path(__file__).resolve().parents[2] / "anthropics-skills" / "skills" / "skill-creator" / "scripts" / "aggregate_benchmark.py",
     REPO.parent / "anthropics-skills" / "skills" / "skill-creator" / "scripts" / "aggregate_benchmark.py",
@@ -103,13 +104,6 @@ def write_metadata(eval_id: int, prompt: str, name: str) -> None:
 
 
 def main() -> None:
-    if not AGG.exists():
-        print(
-            "ERROR: aggregate_benchmark.py not found. Clone anthropics/skills, e.g.\n"
-            "  git clone https://github.com/anthropics/skills.git ../anthropics-skills",
-            file=sys.stderr,
-        )
-        sys.exit(1)
     evals = json.loads(EVALS_JSON.read_text(encoding="utf-8"))
     ITER.mkdir(parents=True, exist_ok=True)
 
@@ -140,21 +134,35 @@ def main() -> None:
                 check=True,
             )
 
-    subprocess.run(
-        [sys.executable, str(AGG), str(ITER), "--skill-name", "personal-assistant"],
-        check=True,
-        cwd=str(AGG.parent),
-    )
-    bench = ITER / "benchmark.json"
-    bench_md = ITER / "benchmark.md"
     out_dir = SKILL / "evals" / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(bench, out_dir / "benchmark.json")
-    if bench_md.exists():
-        shutil.copy2(bench_md, out_dir / "benchmark.md")
-    print("Wrote:", bench)
-    print("Copied to:", out_dir / "benchmark.json")
-    print(bench.read_text(encoding="utf-8")[:2000])
+
+    if AGG.exists():
+        subprocess.run(
+            [sys.executable, str(AGG), str(ITER), "--skill-name", "personal-assistant"],
+            check=True,
+            cwd=str(AGG.parent),
+        )
+        bench = ITER / "benchmark.json"
+        bench_md = ITER / "benchmark.md"
+        if bench.exists():
+            shutil.copy2(bench, out_dir / "benchmark.json")
+        if bench_md.exists():
+            shutil.copy2(bench_md, out_dir / "benchmark.md")
+        print("Wrote:", bench)
+        print("Copied to:", out_dir / "benchmark.json")
+        if bench.exists():
+            print(bench.read_text(encoding="utf-8")[:2000])
+    else:
+        print(
+            "WARNING: aggregate_benchmark.py not found; skipping external aggregation. "
+            "Clone anthropics/skills for full aggregate output, e.g.\n"
+            "  git clone https://github.com/anthropics/skills.git ../anthropics-skills",
+            file=sys.stderr,
+        )
+        subprocess.run([sys.executable, str(REGENERATE_BENCH)], check=True)
+        print("Wrote committed results via:", REGENERATE_BENCH)
+        print("See:", out_dir / "benchmark.json")
 
 
 if __name__ == "__main__":

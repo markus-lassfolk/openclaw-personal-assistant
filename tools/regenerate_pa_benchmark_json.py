@@ -13,6 +13,7 @@ EV = REPO / "skills/personal-assistant/evals/evals.json"
 GR = REPO / "tools/pa_skill_grader.py"
 ITER = REPO / "eval-workspace/iteration-1"
 OUT = REPO / "skills/personal-assistant/evals/results/benchmark.json"
+OUT_MD = REPO / "skills/personal-assistant/evals/results/benchmark.md"
 
 
 def mean_std(xs: list[float]) -> dict:
@@ -24,6 +25,35 @@ def mean_std(xs: list[float]) -> dict:
         "min": round(min(xs), 4),
         "max": round(max(xs), 4),
     }
+
+
+def _fmt_pct(mean: float, stddev: float) -> str:
+    return f"{int(round(mean * 100))}% +/- {int(round(stddev * 100))}%"
+
+
+def _write_benchmark_md(bench: dict) -> None:
+    rs = bench["run_summary"]
+    ws_pr, wo_pr = rs["with_skill"]["pass_rate"], rs["without_skill"]["pass_rate"]
+    ws_tok, wo_tok = rs["with_skill"]["tokens"], rs["without_skill"]["tokens"]
+    ws_time, wo_time = rs["with_skill"]["time_seconds"], rs["without_skill"]["time_seconds"]
+    delta = rs["delta"]
+    meta = bench["metadata"]
+    evals = ", ".join(str(x) for x in meta["evals_run"])
+    body = f"""# Skill Benchmark: personal-assistant
+
+**Model**: {meta.get("executor_model", "<model-name>")}
+**Date**: {meta.get("timestamp", "")}
+**Evals**: {evals} (1 fixture run per eval per configuration)
+
+## Summary
+
+| Metric | With Skill | Without Skill | Delta |
+|--------|------------|---------------|-------|
+| Pass Rate | {_fmt_pct(ws_pr["mean"], ws_pr["stddev"])} | {_fmt_pct(wo_pr["mean"], wo_pr["stddev"])} | {delta["pass_rate"]} |
+| Time | {ws_time["mean"]}s +/- {ws_time["stddev"]}s | {wo_time["mean"]}s +/- {wo_time["stddev"]}s | {delta["time_seconds"]} |
+| Tokens | {int(round(ws_tok["mean"]))} +/- {int(round(ws_tok["stddev"]))} | {int(round(wo_tok["mean"]))} +/- {int(round(wo_tok["stddev"]))} | {delta["tokens"]} |
+"""
+    OUT_MD.write_text(body, encoding="utf-8")
 
 
 def main() -> None:
@@ -106,7 +136,9 @@ def main() -> None:
         "notes": [],
     }
     OUT.write_text(json.dumps(bench, indent=2), encoding="utf-8")
+    _write_benchmark_md(bench)
     print("Wrote", OUT)
+    print("Wrote", OUT_MD)
 
 
 if __name__ == "__main__":

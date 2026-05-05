@@ -63,28 +63,39 @@ def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
     )
 
 
-def _eval3_inbox_priority_bullets(text: str) -> tuple[bool, int, bool, int]:
+def _eval3_inbox_priority_bullets(
+    text: str,
+) -> tuple[bool, int, bool, int, list[int]]:
     """
-    Returns (ok, bullets_in_block, saw_priority_header, total_top_level_bullets).
-    Requires a markdown header mentioning inbox/priority/overdue, then 1-3 list bullets before the next header.
+    Sum bullets across every markdown section whose header mentions inbox/priority/overdue.
+    Pass iff at least one such header exists and the combined bullet count is 1-3 (max-three
+    inbox-priority callouts cannot be reset by starting a second matching section).
+
+    Returns (ok, total_in_priority_sections, saw_priority_header, total_bullets_in_doc, per_section_counts).
     """
+    section_counts: list[int] = []
+    current: int | None = None
     saw_header = False
-    in_block = False
-    count = 0
     for line in text.splitlines():
         if re.match(r"^\s*#{1,6}\s+", line):
             hdr = line.lower()
             if any(k in hdr for k in ("inbox", "priority", "overdue")):
+                if current is not None:
+                    section_counts.append(current)
+                current = 0
                 saw_header = True
-                in_block = True
-                count = 0
-            elif in_block:
-                in_block = False
-        elif in_block and re.match(r"^\s*[-*]\s+\S", line):
-            count += 1
+            else:
+                if current is not None:
+                    section_counts.append(current)
+                    current = None
+        elif current is not None and re.match(r"^\s*[-*]\s+\S", line):
+            current += 1
+    if current is not None:
+        section_counts.append(current)
+    total_in_priority = sum(section_counts)
     total_bullets = len(re.findall(r"(?m)^\s*[-*]\s+.+", text))
-    ok = bool(saw_header and 1 <= count <= 3)
-    return ok, count, saw_header, total_bullets
+    ok = bool(saw_header and 1 <= total_in_priority <= 3)
+    return ok, total_in_priority, saw_header, total_bullets, section_counts
 
 
 def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> tuple[bool, str]:
@@ -142,10 +153,11 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
             ok = ("10:00" in text or "standup" in t) and ("14:00" in text or "vendor" in t)
             return ok, "Checked both meetings or times present."
         if index == 2:
-            ok, count_in_inbox, saw_header, total_bullets = _eval3_inbox_priority_bullets(text)
+            ok, total_pri, saw_header, total_bullets, per_sec = _eval3_inbox_priority_bullets(text)
             return ok, (
-                f"Inbox-priority header={saw_header}, bullets under that header={count_in_inbox}, "
-                f"total bullet lines={total_bullets} (require header plus 1-3 bullets)."
+                f"Inbox-priority header={saw_header}, bullets per matching section={per_sec}, "
+                f"total in priority sections={total_pri}, all bullet lines in doc={total_bullets} "
+                f"(require 1-3 bullets summed across all inbox/priority/overdue sections)."
             )
 
     return False, f"No grader rule for eval_id={eval_id} index={index}: {exp[:60]}..."
