@@ -15,6 +15,78 @@ def word_count(text: str) -> int:
     return len(re.findall(r"\S+", text))
 
 
+def _eval2_structure_carrier(line: str) -> bool:
+    """Lines that can carry owned action items (not loose narrative paragraphs)."""
+    s = line.strip()
+    return bool(
+        s.startswith("|")
+        or re.match(r"^\s*[-*]\s+\S", line)
+        or re.match(r"^\s*\d+\.\s+\S", line)
+    )
+
+
+def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
+    """Owners must appear tied to the right transcript work items (not name-drops alone)."""
+    rows = [ln for ln in text.splitlines() if "|" in ln and ln.strip().startswith("|")]
+    sep = re.compile(r"^\s*\|[\s\-:|]+\|\s*$")
+    data_rows = [ln for ln in rows if not sep.match(ln) and "owner" not in ln.lower()]
+
+    def row_links(line: str, owner: str, keywords: tuple[str, ...]) -> bool:
+        low = line.lower()
+        if owner not in low:
+            return False
+        return any(k in low for k in keywords)
+
+    alice_row = any(row_links(r, "alice", ("contract", "revised")) for r in data_rows)
+    bob_row = any(row_links(r, "bob", ("sla", "planner", "review")) for r in data_rows)
+    if alice_row and bob_row:
+        return True, "Table rows link Alice to contract work and Bob to SLA/Planner."
+
+    alice_ok = bob_ok = False
+    for ln in text.splitlines():
+        if not _eval2_structure_carrier(ln):
+            continue
+        if re.search(r"(?i)alice.{0,100}(contract|revised)", ln) or re.search(
+            r"(?i)(contract|revised).{0,100}alice", ln
+        ):
+            alice_ok = True
+        if re.search(r"(?i)bob.{0,100}(sla|planner)", ln) or re.search(
+            r"(?i)(sla|planner).{0,100}bob", ln
+        ):
+            bob_ok = True
+    if alice_ok and bob_ok:
+        return True, "Found Alice/contract and Bob/SLA-or-Planner on structured lines (list or table)."
+    return (
+        False,
+        f"No clear owner-item linkage (alice_row={alice_row}, bob_row={bob_row}, "
+        f"alice_struct={alice_ok}, bob_struct={bob_ok}).",
+    )
+
+
+def _eval3_inbox_priority_bullets(text: str) -> tuple[bool, int, bool, int]:
+    """
+    Returns (ok, bullets_in_block, saw_priority_header, total_top_level_bullets).
+    Requires a markdown header mentioning inbox/priority/overdue, then 1-3 list bullets before the next header.
+    """
+    saw_header = False
+    in_block = False
+    count = 0
+    for line in text.splitlines():
+        if re.match(r"^\s*#{1,6}\s+", line):
+            hdr = line.lower()
+            if any(k in hdr for k in ("inbox", "priority", "overdue")):
+                saw_header = True
+                in_block = True
+                count = 0
+            elif in_block:
+                in_block = False
+        elif in_block and re.match(r"^\s*[-*]\s+\S", line):
+            count += 1
+    total_bullets = len(re.findall(r"(?m)^\s*[-*]\s+.+", text))
+    ok = bool(saw_header and 1 <= count <= 3)
+    return ok, count, saw_header, total_bullets
+
+
 def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> tuple[bool, str]:
     t = text.lower()
     exp = expectation.lower()
@@ -41,8 +113,8 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
 
     if eval_id == 2:
         if index == 0:
-            ok = ("bob" in t and "alice" in t) or ("planner" in t and "sla" in t) or ("action" in t and "owner" in t)
-            return ok, "Checked for owners/assignees or Planner/SLA references from transcript."
+            ok, msg = _eval2_owner_task_linkage(text)
+            return ok, msg
         if index == 1:
             bad_phrases = (
                 "i've sent",
@@ -70,19 +142,11 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
             ok = ("10:00" in text or "standup" in t) and ("14:00" in text or "vendor" in t)
             return ok, "Checked both meetings or times present."
         if index == 2:
-            bullets = re.findall(r"(?m)^\s*[-*]\s+.+", text)
-            inbox_section = False
-            count_in_inbox = 0
-            for line in text.splitlines():
-                if "inbox" in line.lower() or "priority" in line.lower():
-                    inbox_section = True
-                elif inbox_section and re.match(r"^\s*#+\s", line):
-                    break
-                elif inbox_section and re.match(r"^\s*[-*]\s", line):
-                    count_in_inbox += 1
-            # Expectation: ≤3 inbox/task callouts in the inbox/priority-adjacent block (eval 3).
-            ok = count_in_inbox <= 3
-            return ok, f"Inbox-adjacent bullets={count_in_inbox}, total bullets={len(bullets)} (require <=3 in inbox/priority section)."
+            ok, count_in_inbox, saw_header, total_bullets = _eval3_inbox_priority_bullets(text)
+            return ok, (
+                f"Inbox-priority header={saw_header}, bullets under that header={count_in_inbox}, "
+                f"total bullet lines={total_bullets} (require header plus 1-3 bullets)."
+            )
 
     return False, f"No grader rule for eval_id={eval_id} index={index}: {exp[:60]}..."
 
