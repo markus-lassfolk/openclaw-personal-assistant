@@ -1,0 +1,15 @@
+{
+  "_comment": "Copy to your OpenClaw workspace as config/user.json (gitignored). Set workspace to your workspace root absolute path.",
+  "name": "YourName",
+  "primary_email": "you@example.com",
+  "work_email": "you@company.com",
+  "assistant_email": "assistant@company.com",
+  "timezone": "America/New_York",
+  "weekday_briefing_time": "08:00",
+  "workspace": "/home/you/.openclaw/workspace",
+  "signature": "-- YourName",
+  "scheduling_cc": "assistant@company.com",
+  "scheduling_silent_cc": "chief-of-staff@company.com",
+  "briefing_channel": "telegram",
+  "briefing_handle": "@yourhandle"
+}

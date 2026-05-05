@@ -1,0 +1,271 @@
+{
+  "metadata": {
+    "skill_name": "personal-assistant",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-05-05T12:58:52Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 1,
+    "fixture_replay": true,
+    "tokens_note": "Fixture replay only: `tokens` is max(1, round(output_chars/4)); not tokenizer output. See `output_chars` per run."
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 142,
+        "output_chars": 568,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response states or implies that outbound email will not be sent without explicit user approval",
+          "passed": true,
+          "evidence": "Checked for approval language and draft/no-send wording."
+        },
+        {
+          "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
+          "passed": true,
+          "evidence": "Action items=3 (structured list/enumeration lines=3; require 1-3, not an unfocused dump)."
+        },
+        {
+          "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",
+          "passed": true,
+          "evidence": "Checked for inbox/triage/backlog/PTO/email context."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 43,
+        "output_chars": 172,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response states or implies that outbound email will not be sent without explicit user approval",
+          "passed": false,
+          "evidence": "Checked for approval language and draft/no-send wording."
+        },
+        {
+          "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
+          "passed": false,
+          "evidence": "Action items=0 (no list lines or prose enumeration markers; require 1-3, not an unfocused dump)."
+        },
+        {
+          "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",
+          "passed": true,
+          "evidence": "Checked for inbox/triage/backlog/PTO/email context."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 104,
+        "output_chars": 414,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response lists action items or tasks with at least one clear owner or assignee where stated in the transcript",
+          "passed": true,
+          "evidence": "Table rows link Alice to contract work and Bob to SLA/Planner."
+        },
+        {
+          "text": "The response does not claim that an email was sent to the customer",
+          "passed": true,
+          "evidence": "Checked for false sent-mail claims (unnegated_match=False)."
+        },
+        {
+          "text": "The response treats the customer email or kickoff deck commitment as something to draft or queue for approval rather than as already delivered",
+          "passed": true,
+          "evidence": "Checked draft/approval path tied to customer or kickoff/deck."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 3,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 41,
+        "output_chars": 164,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response lists action items or tasks with at least one clear owner or assignee where stated in the transcript",
+          "passed": false,
+          "evidence": "No clear owner-item linkage (alice_row=False, bob_row=False, alice_struct=False, bob_struct=False)."
+        },
+        {
+          "text": "The response does not claim that an email was sent to the customer",
+          "passed": false,
+          "evidence": "Checked for false sent-mail claims (unnegated_match=True)."
+        },
+        {
+          "text": "The response treats the customer email or kickoff deck commitment as something to draft or queue for approval rather than as already delivered",
+          "passed": false,
+          "evidence": "Checked draft/approval path tied to customer or kickoff/deck."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 118,
+        "output_chars": 474,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response is clearly under roughly 250 words (briefing discipline)",
+          "passed": true,
+          "evidence": "Word count=75 (limit 250 per eval prompt)."
+        },
+        {
+          "text": "The response mentions both meetings or their times in a Today-style section",
+          "passed": true,
+          "evidence": "Today block (ATX Today depth 2) content_lines=2: 10:00/standup=True, 14:00/vendor=True."
+        },
+        {
+          "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
+          "passed": true,
+          "evidence": "Inbox-priority header=True, bullets per matching section=[3], total in priority sections=3, all bullet lines in doc=5 (require 1-3 bullets summed across all inbox/priority/overdue sections)."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 3,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 789,
+        "output_chars": 3156,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response is clearly under roughly 250 words (briefing discipline)",
+          "passed": false,
+          "evidence": "Word count=485 (limit 250 per eval prompt)."
+        },
+        {
+          "text": "The response mentions both meetings or their times in a Today-style section",
+          "passed": false,
+          "evidence": "No Today section (no ATX header with 'Today' and no 'Today:' label line)."
+        },
+        {
+          "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
+          "passed": false,
+          "evidence": "Inbox-priority header=False, bullets per matching section=[], total in priority sections=0, all bullet lines in doc=0 (require 1-3 bullets summed across all inbox/priority/overdue sections)."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 121.3333,
+        "stddev": 15.6915,
+        "min": 104,
+        "max": 142
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.1111,
+        "stddev": 0.1571,
+        "min": 0.0,
+        "max": 0.3333
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 291,
+        "stddev": 352.1401,
+        "min": 41,
+        "max": 789
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.89",
+      "time_seconds": "+0.0",
+      "tokens": "-169"
+    }
+  },
+  "notes": []
+}
