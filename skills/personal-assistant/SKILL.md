@@ -177,6 +177,22 @@ Protect the user's time. Do not blindly accept every meeting request.
 *   **Counter-propose:** if an incoming invite conflicts with focus time or existing commitments, use the calendar tooling to propose a better slot rather than simply accepting friction.
 *   **Meeting prep:** before important meetings, recall the people, project, and prior commitments involved so the user walks in briefed.
 
+### 2.1 Proactive Calendar Defense (Focus Blocks)
+
+In addition to defending against bad meetings, proactively defend the user's calendar *for productive work*.
+
+*   Identify days with no protected focus blocks.
+*   Identify overloaded days (too many meetings, no recovery time).
+*   Detect recurring meeting patterns that are consuming productive time.
+
+Rules:
+
+*   **Never delete or move existing events without explicit approval.** Propose changes first.
+*   Prefer *adding* focus blocks into clear gaps over shuffling meetings.
+*   When proposing focus blocks, bias toward earlier in the day for deep work (unless the user's known preferences say otherwise).
+*   Add buffer time between blocks (default 10–15 minutes) to account for context switching.
+*   Always leave realistic space for meals, breaks, and travel.
+
 ## 3. Task Extraction
 
 Identify action items hidden in emails, chats, and meeting notes.
@@ -193,6 +209,69 @@ Identify action items hidden in emails, chats, and meeting notes.
 
 *   Ensure every extracted task has a clear description, owner, and realistic deadline.
 *   Store major decisions and commitments in long-term memory so later status updates can be drafted accurately.
+
+## 3.1 Weekly Planning Brief (Email → Proposed Schedule → Approval → Calendar)
+
+When the user asks for weekly planning help (or the environment triggers a weekly planning run), close the loop between:
+
+*   Recent inbound signals (email)
+*   The user's todo list
+*   The coming week's calendar
+
+The goal is to produce a proposed schedule and only write back to the calendar after explicit user approval.
+
+#### Step A — Gather inputs
+
+*   Read recent emails (unread + recent relevant threads) and extract:
+    - Meetings / appointments that need scheduling
+    - Deadlines and time-specific commitments
+    - Bills / administrative tasks
+    - Work tasks and deliverables
+*   Read the calendar for the coming week via `m365-agent-cli calendar week [--mailbox <user_email>]`.
+*   Get the user's todo list:
+    - From the user directly, OR
+    - From previously extracted tasks (To Do / Planner), OR
+    - By asking a single concise question if missing
+
+#### Step B — Generate a proposed schedule (do not write yet)
+
+Generate a proposed schedule that follows these rules:
+
+*   **No-overwrite rule:** never delete, modify, or move existing calendar events without explicit user approval.
+*   **Time-specific first:** schedule time-specific tasks at their required times.
+*   **Deep work first:** place harder / deeper work earlier in the day.
+*   **Buffer time:** add 10–15 minutes buffer between work blocks.
+*   **Grouping:** group similar tasks together to reduce context switching.
+*   **Human constraints:** leave realistic space for meals, breaks, and travel.
+*   **Conflicts:** flag conflicts and unclear items for user review (do not guess).
+
+Output format (recommended):
+
+*   A short “Week-at-a-glance” summary
+*   Per-day proposed blocks with:
+    - Title
+    - Start/end time
+    - Category (`deep work`, `admin`, `meeting`, `personal`, etc.)
+    - Notes / assumptions
+*   A “Conflicts & Questions” section
+
+#### Step C — Explicit approval gate
+
+Before creating any calendar events:
+
+*   Ask the user to approve the proposed schedule.
+*   Offer granular approval: “approve all”, “approve day X”, or “approve only these blocks”.
+*   If the user requests changes, revise the proposal and re-confirm.
+
+#### Step D — Commit: create calendar events (write-back)
+
+Only after approval, create events using `m365-agent-cli calendar create-event`.
+
+Guardrails:
+
+*   Create new events; do not edit existing events unless the user explicitly asked for edits.
+*   If running in delegated mode, include `--mailbox <user_email>`.
+*   After creating events, re-list the affected day/week and report what was created.
 
 ## 4. AI-Human Document Collaboration
 
@@ -411,6 +490,8 @@ Concise lookup table for the most frequently used workflows. Check command-level
 | Reply as draft | `m365-agent-cli mail --reply <id> --draft [--mailbox <email>]` | EWS |
 | Move email | `m365-agent-cli mail --move <id> --to <folder> [--mailbox <email>]` | EWS |
 | Today's calendar | `m365-agent-cli calendar today [--mailbox <email>]` | EWS |
+| Week calendar | `m365-agent-cli calendar week [--mailbox <email>]` | EWS |
+| Create calendar event | `m365-agent-cli calendar create-event ... [--mailbox <email>]` | EWS — verify flags with `m365-agent-cli calendar create-event --help` |
 | Find meeting time | `m365-agent-cli findtime [--user <email>]` | Graph — use `--user` for delegated |
 | Create a To Do task | `m365-agent-cli todo create --title <title> --due <date> [--user <email>]` | Graph |
 | Create a Planner task | `m365-agent-cli planner create-task --plan <plan> --bucket <bucket> --title <title> [--user <email>]` | Graph |
