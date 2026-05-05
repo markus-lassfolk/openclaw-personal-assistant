@@ -98,6 +98,28 @@ def _eval3_inbox_priority_bullets(
     return ok, total_in_priority, saw_header, total_bullets, section_counts
 
 
+def _eval3_today_section_meetings(text: str) -> tuple[bool, str]:
+    """Meetings must appear inside a Today-style markdown section (header contains word 'Today')."""
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if re.match(r"^\s*#{1,6}\s+", line) and re.search(r"(?i)\btoday\b", line):
+            chunk: list[str] = []
+            for j in range(i + 1, len(lines)):
+                if re.match(r"^\s*#{1,6}\s+", lines[j]):
+                    break
+                chunk.append(lines[j])
+            joined = "\n".join(chunk)
+            low = joined.lower()
+            has_a = "10:00" in joined or "standup" in low
+            has_b = "14:00" in joined or "vendor" in low
+            ok = has_a and has_b
+            return ok, (
+                f"Today-section lines={len(chunk)}: 10:00/standup={has_a}, 14:00/vendor={has_b} "
+                f"(require both under a header matching 'Today')."
+            )
+    return False, "No markdown header containing the word 'Today' was found."
+
+
 def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> tuple[bool, str]:
     t = text.lower()
     exp = expectation.lower()
@@ -150,8 +172,8 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
             ok = wc <= 250
             return ok, f"Word count={wc} (limit 250 per eval prompt)."
         if index == 1:
-            ok = ("10:00" in text or "standup" in t) and ("14:00" in text or "vendor" in t)
-            return ok, "Checked both meetings or times present."
+            ok, msg = _eval3_today_section_meetings(text)
+            return ok, msg
         if index == 2:
             ok, total_pri, saw_header, total_bullets, per_sec = _eval3_inbox_priority_bullets(text)
             return ok, (

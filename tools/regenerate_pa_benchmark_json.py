@@ -14,6 +14,8 @@ GR = REPO / "tools/pa_skill_grader.py"
 ITER = REPO / "eval-workspace/iteration-1"
 OUT = REPO / "skills/personal-assistant/evals/results/benchmark.json"
 OUT_MD = REPO / "skills/personal-assistant/evals/results/benchmark.md"
+# Rough GPT-style token estimate when replaying fixtures (no model tokenizer available).
+_CHARS_PER_TOKEN_EST = 4.0
 
 
 def mean_std(xs: list[float]) -> dict:
@@ -51,7 +53,9 @@ def _write_benchmark_md(bench: dict) -> None:
 |--------|------------|---------------|-------|
 | Pass Rate | {_fmt_pct(ws_pr["mean"], ws_pr["stddev"])} | {_fmt_pct(wo_pr["mean"], wo_pr["stddev"])} | {delta["pass_rate"]} |
 | Time | {ws_time["mean"]}s +/- {ws_time["stddev"]}s | {wo_time["mean"]}s +/- {wo_time["stddev"]}s | {delta["time_seconds"]} |
-| Tokens | {int(round(ws_tok["mean"]))} +/- {int(round(ws_tok["stddev"]))} | {int(round(wo_tok["mean"]))} +/- {int(round(wo_tok["stddev"]))} | {delta["tokens"]} |
+| Tokens (est.) | {int(round(ws_tok["mean"]))} +/- {int(round(ws_tok["stddev"]))} | {int(round(wo_tok["mean"]))} +/- {int(round(wo_tok["stddev"]))} | {delta["tokens"]} |
+
+*Fixture replay: token figures are `round(output_chars/4)`, not real tokenizer counts; see `benchmark.json` `metadata.tokens_note` and per-run `output_chars`.*
 """
     OUT_MD.write_text(body, encoding="utf-8")
 
@@ -72,7 +76,9 @@ def main() -> None:
             exps = data["expectations"]
             passed = sum(1 for x in exps if x["passed"])
             total = len(exps)
-            tok = len(p.read_text(encoding="utf-8"))
+            body = p.read_text(encoding="utf-8")
+            out_chars = len(body)
+            tok_est = max(1, int(round(out_chars / _CHARS_PER_TOKEN_EST)))
             runs.append(
                 {
                     "eval_id": eid,
@@ -84,7 +90,8 @@ def main() -> None:
                         "failed": total - passed,
                         "total": total,
                         "time_seconds": 0.0,
-                        "tokens": tok,
+                        "tokens": tok_est,
+                        "output_chars": out_chars,
                         "tool_calls": 0,
                         "errors": 0,
                     },
@@ -110,6 +117,11 @@ def main() -> None:
             "timestamp": "2026-05-05T12:58:52Z",
             "evals_run": [1, 2, 3],
             "runs_per_configuration": 1,
+            "fixture_replay": True,
+            "tokens_note": (
+                f"Fixture replay only: `tokens` is max(1, round(output_chars/{int(_CHARS_PER_TOKEN_EST)})); "
+                "not tokenizer output. See `output_chars` per run."
+            ),
         },
         "runs": runs,
         "run_summary": {

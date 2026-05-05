@@ -8,6 +8,8 @@
 
 | Metric | With Skill | Without Skill | Delta |
 |--------|------------|---------------|-------|
-| Pass Rate | 100% +/- 0% | 22% +/- 16% | +0.78 |
+| Pass Rate | 100% +/- 0% | 11% +/- 16% | +0.89 |
 | Time | 0.0s +/- 0.0s | 0.0s +/- 0.0s | +0.0 |
-| Tokens | 485 +/- 63 | 1164 +/- 1409 | -678 |
+| Tokens (est.) | 121 +/- 16 | 291 +/- 352 | -169 |
+
+*Fixture replay: token figures are `round(output_chars/4)`, not real tokenizer counts; see `benchmark.json` `metadata.tokens_note` and per-run `output_chars`.*

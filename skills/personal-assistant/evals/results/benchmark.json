@@ -10,7 +10,9 @@
       2,
       3
     ],
-    "runs_per_configuration": 1
+    "runs_per_configuration": 1,
+    "fixture_replay": true,
+    "tokens_note": "Fixture replay only: `tokens` is max(1, round(output_chars/4)); not tokenizer output. See `output_chars` per run."
   },
   "runs": [
     {
@@ -23,7 +25,8 @@
         "failed": 0,
         "total": 3,
         "time_seconds": 0.0,
-        "tokens": 568,
+        "tokens": 142,
+        "output_chars": 568,
         "tool_calls": 0,
         "errors": 0
       },
@@ -56,7 +59,8 @@
         "failed": 2,
         "total": 3,
         "time_seconds": 0.0,
-        "tokens": 172,
+        "tokens": 43,
+        "output_chars": 172,
         "tool_calls": 0,
         "errors": 0
       },
@@ -89,7 +93,8 @@
         "failed": 0,
         "total": 3,
         "time_seconds": 0.0,
-        "tokens": 414,
+        "tokens": 104,
+        "output_chars": 414,
         "tool_calls": 0,
         "errors": 0
       },
@@ -122,7 +127,8 @@
         "failed": 3,
         "total": 3,
         "time_seconds": 0.0,
-        "tokens": 164,
+        "tokens": 41,
+        "output_chars": 164,
         "tool_calls": 0,
         "errors": 0
       },
@@ -155,7 +161,8 @@
         "failed": 0,
         "total": 3,
         "time_seconds": 0.0,
-        "tokens": 474,
+        "tokens": 118,
+        "output_chars": 474,
         "tool_calls": 0,
         "errors": 0
       },
@@ -168,7 +175,7 @@
         {
           "text": "The response mentions both meetings or their times in a Today-style section",
           "passed": true,
-          "evidence": "Checked both meetings or times present."
+          "evidence": "Today-section lines=3: 10:00/standup=True, 14:00/vendor=True (require both under a header matching 'Today')."
         },
         {
           "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
@@ -183,12 +190,13 @@
       "configuration": "without_skill",
       "run_number": 0,
       "result": {
-        "pass_rate": 0.3333,
-        "passed": 1,
-        "failed": 2,
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 3,
         "total": 3,
         "time_seconds": 0.0,
-        "tokens": 3156,
+        "tokens": 789,
+        "output_chars": 3156,
         "tool_calls": 0,
         "errors": 0
       },
@@ -200,8 +208,8 @@
         },
         {
           "text": "The response mentions both meetings or their times in a Today-style section",
-          "passed": true,
-          "evidence": "Checked both meetings or times present."
+          "passed": false,
+          "evidence": "No markdown header containing the word 'Today' was found."
         },
         {
           "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
@@ -227,15 +235,15 @@
         "max": 0.0
       },
       "tokens": {
-        "mean": 485.3333,
-        "stddev": 63.3789,
-        "min": 414,
-        "max": 568
+        "mean": 121.3333,
+        "stddev": 15.6915,
+        "min": 104,
+        "max": 142
       }
     },
     "without_skill": {
       "pass_rate": {
-        "mean": 0.2222,
+        "mean": 0.1111,
         "stddev": 0.1571,
         "min": 0.0,
         "max": 0.3333
@@ -247,16 +255,16 @@
         "max": 0.0
       },
       "tokens": {
-        "mean": 1164,
-        "stddev": 1408.5605,
-        "min": 164,
-        "max": 3156
+        "mean": 291,
+        "stddev": 352.1401,
+        "min": 41,
+        "max": 789
       }
     },
     "delta": {
-      "pass_rate": "+0.78",
+      "pass_rate": "+0.89",
       "time_seconds": "+0.0",
-      "tokens": "-678"
+      "tokens": "-169"
     }
   },
   "notes": []
