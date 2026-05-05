@@ -9,7 +9,7 @@ Copy this file to `{workspace}/style/voice.md` and customize. The PA skill reads
 
 ## Sign-off
 
-- Use `signature` from `config/user.json` unless the user specifies otherwise.
+- Use `signature` from `{workspace}/config/user.json` unless the user specifies otherwise.
 
 ## Taboo
 
@@ -17,5 +17,5 @@ Copy this file to `{workspace}/style/voice.md` and customize. The PA skill reads
 
 ## Scheduling emails
 
-- If `scheduling_cc` is set in `user.json`, include those addresses on scheduling-related drafts when appropriate.
+- If `scheduling_cc` is set in `{workspace}/config/user.json`, include those addresses on scheduling-related drafts when appropriate.
 - If `scheduling_silent_cc` is set, add as Bcc (or platform equivalent); never mention silent recipients in the body.

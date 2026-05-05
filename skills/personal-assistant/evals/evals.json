@@ -29,7 +29,7 @@
       "expected_output": "Scannable briefing under ~250 words with sections for today, inbox priority (≤3), and proactive note; no fabricated private details.",
       "files": [],
       "expectations": [
-        "The response is clearly under roughly 300 words (briefing discipline)",
+        "The response is clearly under roughly 250 words (briefing discipline)",
         "The response mentions both meetings or their times in a Today-style section",
         "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary"
       ]

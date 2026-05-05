@@ -64,8 +64,8 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
     if eval_id == 3:
         if index == 0:
             wc = word_count(text)
-            ok = wc <= 300
-            return ok, f"Word count={wc} (limit ~300)."
+            ok = wc <= 250
+            return ok, f"Word count={wc} (limit 250 per eval prompt)."
         if index == 1:
             ok = ("10:00" in text or "standup" in t) and ("14:00" in text or "vendor" in t)
             return ok, "Checked both meetings or times present."
@@ -82,7 +82,7 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
                     count_in_inbox += 1
             # Expectation: ≤3 inbox/task callouts in the inbox/priority-adjacent block (eval 3).
             ok = count_in_inbox <= 3
-            return ok, f"Inbox-adjacent bullets={count_in_inbox}, total bullets={len(bullets)} (require ≤3 in inbox/priority section)."
+            return ok, f"Inbox-adjacent bullets={count_in_inbox}, total bullets={len(bullets)} (require <=3 in inbox/priority section)."
 
     return False, f"No grader rule for eval_id={eval_id} index={index}: {exp[:60]}..."
 

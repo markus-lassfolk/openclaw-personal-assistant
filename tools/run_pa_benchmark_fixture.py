@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Populate eval-workspace/iteration-1 with with_skill vs without_skill fixture runs,
-run deterministic grader, then print aggregate_benchmark command.
+Populate eval-workspace/iteration-1 with with_skill and without_skill fixture runs,
+run deterministic grader, then invoke aggregate_benchmark when available.
 
 Fixture responses are authored to demonstrate pass/fail deltas vs expectations.
 """
@@ -106,7 +106,7 @@ def main() -> None:
     if not AGG.exists():
         print(
             "ERROR: aggregate_benchmark.py not found. Clone anthropics/skills, e.g.\n"
-            "  git clone https://github.com/anthropics/skills.git ..\anthropics-skills",
+            "  git clone https://github.com/anthropics/skills.git ../anthropics-skills",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -120,8 +120,18 @@ def main() -> None:
         )
         write_metadata(eid, e["prompt"], name)
 
-        ws = write_run(eid, "with_skill", WITH_SKILL[eid])
-        wo = write_run(eid, "without_skill", WITHOUT_SKILL[eid])
+        ws_body = WITH_SKILL.get(eid)
+        wo_body = WITHOUT_SKILL.get(eid)
+        if ws_body is None or wo_body is None:
+            print(
+                f"WARNING: No fixture bodies for eval_id={eid}; "
+                "skipping (add keys to WITH_SKILL and WITHOUT_SKILL).",
+                file=sys.stderr,
+            )
+            continue
+
+        ws = write_run(eid, "with_skill", ws_body)
+        wo = write_run(eid, "without_skill", wo_body)
 
         for path, label in ((ws, "with_skill"), (wo, "without_skill")):
             grading = ITER / f"eval-{eid}" / label / "run-0" / "grading.json"

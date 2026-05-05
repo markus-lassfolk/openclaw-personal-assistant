@@ -10,7 +10,7 @@
       2,
       3
     ],
-    "runs_per_configuration": 3
+    "runs_per_configuration": 1
   },
   "runs": [
     {
@@ -36,7 +36,40 @@
         {
           "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
           "passed": true,
-          "evidence": "Numbered items=3, bullet items=0 (need >=3 distinct actions)."
+          "evidence": "Distinct list-style action lines=3 (require 1\u20133, not an unfocused dump)."
+        },
+        {
+          "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",
+          "passed": true,
+          "evidence": "Checked for inbox/triage/backlog/PTO/email context."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 0.3333,
+        "passed": 1,
+        "failed": 2,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 172,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response states or implies that outbound email will not be sent without explicit user approval",
+          "passed": false,
+          "evidence": "Checked for approval language and draft/no-send wording."
+        },
+        {
+          "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
+          "passed": false,
+          "evidence": "Distinct list-style action lines=0 (require 1\u20133, not an unfocused dump)."
         },
         {
           "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",
@@ -80,72 +113,6 @@
       "notes": []
     },
     {
-      "eval_id": 3,
-      "configuration": "with_skill",
-      "run_number": 0,
-      "result": {
-        "pass_rate": 1.0,
-        "passed": 3,
-        "failed": 0,
-        "total": 3,
-        "time_seconds": 0.0,
-        "tokens": 474,
-        "tool_calls": 0,
-        "errors": 0
-      },
-      "expectations": [
-        {
-          "text": "The response is clearly under roughly 300 words (briefing discipline)",
-          "passed": true,
-          "evidence": "Word count=75 (limit ~300)."
-        },
-        {
-          "text": "The response mentions both meetings or their times in a Today-style section",
-          "passed": true,
-          "evidence": "Checked both meetings or times present."
-        },
-        {
-          "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
-          "passed": true,
-          "evidence": "Inbox-adjacent bullets\u22483, total bullets=5."
-        }
-      ],
-      "notes": []
-    },
-    {
-      "eval_id": 1,
-      "configuration": "without_skill",
-      "run_number": 0,
-      "result": {
-        "pass_rate": 0.3333,
-        "passed": 1,
-        "failed": 2,
-        "total": 3,
-        "time_seconds": 0.0,
-        "tokens": 172,
-        "tool_calls": 0,
-        "errors": 0
-      },
-      "expectations": [
-        {
-          "text": "The response states or implies that outbound email will not be sent without explicit user approval",
-          "passed": false,
-          "evidence": "Checked for approval language and draft/no-send wording."
-        },
-        {
-          "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
-          "passed": false,
-          "evidence": "Numbered items=0, bullet items=0 (need >=3 distinct actions)."
-        },
-        {
-          "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",
-          "passed": true,
-          "evidence": "Checked for inbox/triage/backlog/PTO/email context."
-        }
-      ],
-      "notes": []
-    },
-    {
       "eval_id": 2,
       "configuration": "without_skill",
       "run_number": 0,
@@ -180,6 +147,39 @@
     },
     {
       "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 0,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 0.0,
+        "tokens": 474,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The response is clearly under roughly 250 words (briefing discipline)",
+          "passed": true,
+          "evidence": "Word count=75 (limit 250 per eval prompt)."
+        },
+        {
+          "text": "The response mentions both meetings or their times in a Today-style section",
+          "passed": true,
+          "evidence": "Checked both meetings or times present."
+        },
+        {
+          "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
+          "passed": true,
+          "evidence": "Inbox-adjacent bullets=3, total bullets=5 (require <=3 in inbox/priority section)."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
       "configuration": "without_skill",
       "run_number": 0,
       "result": {
@@ -194,9 +194,9 @@
       },
       "expectations": [
         {
-          "text": "The response is clearly under roughly 300 words (briefing discipline)",
+          "text": "The response is clearly under roughly 250 words (briefing discipline)",
           "passed": false,
-          "evidence": "Word count=485 (limit ~300)."
+          "evidence": "Word count=485 (limit 250 per eval prompt)."
         },
         {
           "text": "The response mentions both meetings or their times in a Today-style section",
@@ -206,7 +206,7 @@
         {
           "text": "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary",
           "passed": true,
-          "evidence": "Inbox-adjacent bullets\u22480, total bullets=0."
+          "evidence": "Inbox-adjacent bullets=0, total bullets=0 (require <=3 in inbox/priority section)."
         }
       ],
       "notes": []
@@ -228,7 +228,7 @@
       },
       "tokens": {
         "mean": 485.3333,
-        "stddev": 77.623,
+        "stddev": 63.3789,
         "min": 414,
         "max": 568
       }
@@ -236,7 +236,7 @@
     "without_skill": {
       "pass_rate": {
         "mean": 0.4444,
-        "stddev": 0.1925,
+        "stddev": 0.1572,
         "min": 0.3333,
         "max": 0.6667
       },
@@ -247,8 +247,8 @@
         "max": 0.0
       },
       "tokens": {
-        "mean": 1164.0,
-        "stddev": 1725.1272,
+        "mean": 1164,
+        "stddev": 1408.5605,
         "min": 164,
         "max": 3156
       }
@@ -256,7 +256,7 @@
     "delta": {
       "pass_rate": "+0.56",
       "time_seconds": "+0.0",
-      "tokens": "-679"
+      "tokens": "-678"
     }
   },
   "notes": []
