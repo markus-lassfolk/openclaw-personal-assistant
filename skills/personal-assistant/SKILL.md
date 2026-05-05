@@ -10,6 +10,8 @@ metadata: {"clawdbot":{"requires":{"bins":["m365-agent-cli"]}}}
 
 This skill outlines the standard operating procedures for acting as an Executive Assistant to the user. It leverages the `m365-agent-cli` Microsoft 365 CLI to actively manage email, calendar, tasks, and files.
 
+Note: `m365-agent-cli` is installed and updated separately from this skill repository. Recent upstream work (for example `markus-lassfolk/m365-agent-cli` PR #228) expands packaging and adds additional commands and agent workflows. When a command seems missing locally, verify your installed CLI version and consult its docs.
+
 ## Deployment Modes: Direct vs. Delegated Access
 
 You may be operating under two different identity configurations. Determine which mode applies and act accordingly:
@@ -492,6 +494,7 @@ Concise lookup table for the most frequently used workflows. Check command-level
 | Today's calendar | `m365-agent-cli calendar today [--mailbox <email>]` | EWS |
 | Week calendar | `m365-agent-cli calendar week [--mailbox <email>]` | EWS |
 | Create calendar event | `m365-agent-cli calendar create-event ... [--mailbox <email>]` | EWS — verify flags with `m365-agent-cli calendar create-event --help` |
+| Select calendar (Graph) | `m365-agent-cli calendar ... --calendar <id>` | Graph-only selector (upstream PR #228); use when writing to non-default calendars |
 | Find meeting time | `m365-agent-cli findtime [--user <email>]` | Graph — use `--user` for delegated |
 | Create a To Do task | `m365-agent-cli todo create --title <title> --due <date> [--user <email>]` | Graph |
 | Create a Planner task | `m365-agent-cli planner create-task --plan <plan> --bucket <bucket> --title <title> [--user <email>]` | Graph |
