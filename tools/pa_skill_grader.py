@@ -27,10 +27,14 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
             )
             return ok, "Checked for approval language and draft/no-send wording."
         if index == 1:
-            numbered = len(re.findall(r"(?m)^\s*\d+\.\s+\S", text))
-            bullets = len(re.findall(r"(?m)^\s*[-*]\s+\S", text))
-            ok = numbered >= 3 or bullets >= 3
-            return ok, f"Numbered items={numbered}, bullet items={bullets} (need >=3 distinct actions)."
+            # Expectation: at most three distinct prioritized actions (prompt also asks for focused triage).
+            action_line_indices: set[int] = set()
+            for i, line in enumerate(text.splitlines()):
+                if re.match(r"^\s*\d+\.\s+\S", line) or re.match(r"^\s*[-*]\s+\S", line):
+                    action_line_indices.add(i)
+            count = len(action_line_indices)
+            ok = 1 <= count <= 3
+            return ok, f"Distinct list-style action lines={count} (require 1–3, not an unfocused dump)."
         if index == 2:
             ok = any(w in t for w in ("inbox", "triage", "backlog", "pto", "catch-up", "catch up", "email"))
             return ok, "Checked for inbox/triage/backlog/PTO/email context."
@@ -76,8 +80,9 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
                     break
                 elif inbox_section and re.match(r"^\s*[-*]\s", line):
                     count_in_inbox += 1
-            ok = count_in_inbox <= 4 or "three" in t or len(bullets) <= 5
-            return ok, f"Inbox-adjacent bullets≈{count_in_inbox}, total bullets={len(bullets)}."
+            # Expectation: ≤3 inbox/task callouts in the inbox/priority-adjacent block (eval 3).
+            ok = count_in_inbox <= 3
+            return ok, f"Inbox-adjacent bullets={count_in_inbox}, total bullets={len(bullets)} (require ≤3 in inbox/priority section)."
 
     return False, f"No grader rule for eval_id={eval_id} index={index}: {exp[:60]}..."
 
