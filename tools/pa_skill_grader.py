@@ -34,7 +34,7 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
                     action_line_indices.add(i)
             count = len(action_line_indices)
             ok = 1 <= count <= 3
-            return ok, f"Distinct list-style action lines={count} (require 1–3, not an unfocused dump)."
+            return ok, f"Distinct list-style action lines={count} (require 1-3, not an unfocused dump)."
         if index == 2:
             ok = any(w in t for w in ("inbox", "triage", "backlog", "pto", "catch-up", "catch up", "email"))
             return ok, "Checked for inbox/triage/backlog/PTO/email context."
