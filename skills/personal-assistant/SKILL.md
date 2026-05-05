@@ -267,7 +267,7 @@ Before creating any calendar events:
 
 #### Step D — Commit: create calendar events (write-back)
 
-Only after approval, create events using `m365-agent-cli calendar create-event`.
+Only after approval, create events using `m365-agent-cli create-event`.
 
 Guardrails:
 
@@ -493,7 +493,7 @@ Concise lookup table for the most frequently used workflows. Check command-level
 | Move email | `m365-agent-cli mail --move <id> --to <folder> [--mailbox <email>]` | EWS |
 | Today's calendar | `m365-agent-cli calendar today [--mailbox <email>]` | EWS |
 | Week calendar | `m365-agent-cli calendar week [--mailbox <email>]` | EWS |
-| Create calendar event | `m365-agent-cli calendar create-event ... [--mailbox <email>]` | EWS — verify flags with `m365-agent-cli calendar create-event --help` |
+| Create calendar event | `m365-agent-cli create-event <title> [start] [end] --day <date> [--mailbox <email>]` | EWS — verify flags with `m365-agent-cli create-event --help` |
 | Select calendar (Graph) | `m365-agent-cli calendar ... --calendar <id>` | Graph-only selector (upstream PR #228); use when writing to non-default calendars |
 | Find meeting time | `m365-agent-cli findtime [--user <email>]` | Graph — use `--user` for delegated |
 | Create a To Do task | `m365-agent-cli todo create --title <title> --due <date> [--user <email>]` | Graph |
