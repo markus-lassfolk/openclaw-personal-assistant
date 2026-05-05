@@ -39,7 +39,7 @@
         {
           "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
           "passed": true,
-          "evidence": "Distinct list-style action lines=3 (require 1-3, not an unfocused dump)."
+          "evidence": "Action items=3 (structured list/enumeration lines=3; require 1-3, not an unfocused dump)."
         },
         {
           "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",
@@ -73,7 +73,7 @@
         {
           "text": "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
           "passed": false,
-          "evidence": "Distinct list-style action lines=0 (require 1-3, not an unfocused dump)."
+          "evidence": "Action items=0 (no list lines or prose enumeration markers; require 1-3, not an unfocused dump)."
         },
         {
           "text": "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up",

@@ -25,7 +25,7 @@ Rules:
 *   Distinguish clearly between **needs action** and **FYI**.
 *   If the inbox is quiet and there are no meetings, send a short positive note rather than skipping the briefing entirely (for example: "Clear day ahead — no urgent items. Let me know if you'd like to use the time for deep work or catch-up."). Do NOT skip the briefing.
 *   If a holiday source or cache exists in the environment, consult it before sending routine weekday briefings.
-*   **Maximum length:** Keep the briefing to approximately 300 words. If there is more to cover, prioritize ruthlessly and add a "Full details available on request" note at the end.
+*   **Maximum length:** Keep the briefing to roughly **250 words** (same cap as the morning-briefing eval). If there is more to cover, prioritize ruthlessly and add a "Full details available on request" note at the end.
 *   **Prioritization order:**
     1. Time-sensitive actions (deadlines today, meetings starting soon)
     2. Items requiring the user's decision or reply

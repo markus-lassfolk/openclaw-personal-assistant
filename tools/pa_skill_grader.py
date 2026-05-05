@@ -15,6 +15,40 @@ def word_count(text: str) -> int:
     return len(re.findall(r"\S+", text))
 
 
+def _eval1_action_item_count(text: str) -> tuple[int, str]:
+    """
+    Count distinct prioritized actions for eval 1: markdown list lines, (1)/(2) lines,
+    line-leading First/Second/Third, or prose sentences starting with those words
+    (capitalized, to avoid matching "the first ...").
+    """
+    indices: set[int] = set()
+    for i, line in enumerate(text.splitlines()):
+        if re.match(r"^\s*\d+\.\s+\S", line) or re.match(r"^\s*[-*]\s+\S", line):
+            indices.add(i)
+        if re.match(r"^\s*\([1-3]\)\s+\S", line):
+            indices.add(i)
+        if re.match(r"^\s*(?:\*\*)?(?:First|Second|Third)\b", line):
+            indices.add(i)
+    line_count = len(indices)
+    prose_markers = len(
+        re.findall(
+            r"(?:^|[\n.!?]\s+)(?:\*\*)?(?:First|Second|Third)\b\s*[,:-]?",
+            text,
+            re.M,
+        )
+    )
+    count = max(line_count, prose_markers)
+    if count == 0:
+        return 0, "no list lines or prose enumeration markers"
+    if line_count > 0 and prose_markers > 0:
+        detail = f"max(structured lines={line_count}, prose markers={prose_markers})"
+    elif line_count > 0:
+        detail = f"structured list/enumeration lines={line_count}"
+    else:
+        detail = f"prose First/Second/Third markers={prose_markers}"
+    return count, detail
+
+
 def _eval2_structure_carrier(line: str) -> bool:
     """Lines that can carry owned action items (not loose narrative paragraphs)."""
     s = line.strip()
@@ -138,14 +172,9 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
             )
             return ok, "Checked for approval language and draft/no-send wording."
         if index == 1:
-            # Expectation: at most three distinct prioritized actions (prompt also asks for focused triage).
-            action_line_indices: set[int] = set()
-            for i, line in enumerate(text.splitlines()):
-                if re.match(r"^\s*\d+\.\s+\S", line) or re.match(r"^\s*[-*]\s+\S", line):
-                    action_line_indices.add(i)
-            count = len(action_line_indices)
+            count, detail = _eval1_action_item_count(text)
             ok = 1 <= count <= 3
-            return ok, f"Distinct list-style action lines={count} (require 1-3, not an unfocused dump)."
+            return ok, f"Action items={count} ({detail}; require 1-3, not an unfocused dump)."
         if index == 2:
             ok = any(w in t for w in ("inbox", "triage", "backlog", "pto", "catch-up", "catch up", "email"))
             return ok, "Checked for inbox/triage/backlog/PTO/email context."

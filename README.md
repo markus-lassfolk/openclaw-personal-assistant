@@ -128,7 +128,7 @@ python tools/run_pa_benchmark_fixture.py
 
 Latest committed summary: [`skills/personal-assistant/evals/results/benchmark.md`](skills/personal-assistant/evals/results/benchmark.md) and full JSON: [`skills/personal-assistant/evals/results/benchmark.json`](skills/personal-assistant/evals/results/benchmark.json).
 
-**Latest run (fixture + heuristic grader):** with-skill **100%** mean pass rate vs baseline **44%** mean pass rate (**delta +0.56** on expectations). Replace fixtures with live model transcripts and swap in an LLM grader (`agents/grader.md`) when you run the full skill-creator loop in Claude Code.
+**Latest run (fixture + heuristic grader):** with-skill **100%** mean pass rate vs baseline **11%** mean pass rate (**delta +0.89** on expectations). Figures follow [`skills/personal-assistant/evals/results/benchmark.md`](skills/personal-assistant/evals/results/benchmark.md); re-run `python tools/run_pa_benchmark_fixture.py` (or `tools/regenerate_pa_benchmark_json.py`) after changing fixtures. Replace fixtures with live model transcripts and swap in an LLM grader (`agents/grader.md`) when you run the full skill-creator loop in Claude Code.
 
 Further ideas: [Anthropic skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator).
 
