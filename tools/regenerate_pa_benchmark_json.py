@@ -40,7 +40,7 @@ def _write_benchmark_md(bench: dict) -> None:
     ws_time, wo_time = rs["with_skill"]["time_seconds"], rs["without_skill"]["time_seconds"]
     delta = rs["delta"]
     meta = bench["metadata"]
-    evals = ", ".join(str(x) for x in meta["evals_run"])
+    evals = ", ".join(str(x) for x in meta["evals_run"]) if meta.get("evals_run") else "(none)"
     body = f"""# Skill Benchmark: personal-assistant
 
 **Model**: {meta.get("executor_model", "<model-name>")}
@@ -108,6 +108,7 @@ def main() -> None:
     wo_tok = [r["result"]["tokens"] for r in runs if r["configuration"] == "without_skill"]
     m_ws = mean_std(ws_pr)["mean"]
     m_wo = mean_std(wo_pr)["mean"]
+    evals_run = sorted({r["eval_id"] for r in runs})
     bench = {
         "metadata": {
             "skill_name": "personal-assistant",
@@ -115,7 +116,7 @@ def main() -> None:
             "executor_model": "<model-name>",
             "analyzer_model": "<model-name>",
             "timestamp": "2026-05-05T12:58:52Z",
-            "evals_run": [1, 2, 3],
+            "evals_run": evals_run,
             "runs_per_configuration": 1,
             "fixture_replay": True,
             "tokens_note": (

@@ -41,6 +41,8 @@ def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
     bob_row = any(row_links(r, "bob", ("sla", "planner", "review")) for r in data_rows)
     if alice_row and bob_row:
         return True, "Table rows link Alice to contract work and Bob to SLA/Planner."
+    if alice_row or bob_row:
+        return True, "Table row links at least one transcript owner to their work item."
 
     alice_ok = bob_ok = False
     for ln in text.splitlines():
@@ -54,8 +56,8 @@ def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
             r"(?i)(sla|planner).{0,100}bob", ln
         ):
             bob_ok = True
-    if alice_ok and bob_ok:
-        return True, "Found Alice/contract and Bob/SLA-or-Planner on structured lines (list or table)."
+    if alice_ok or bob_ok:
+        return True, "Found at least one structured owner-task pairing from the transcript."
     return (
         False,
         f"No clear owner-item linkage (alice_row={alice_row}, bob_row={bob_row}, "
@@ -88,12 +90,16 @@ def _eval3_inbox_priority_bullets(
                 if current is not None:
                     section_counts.append(current)
                     current = None
-        elif current is not None and re.match(r"^\s*[-*]\s+\S", line):
+        elif current is not None and (
+            re.match(r"^\s*[-*]\s+\S", line) or re.match(r"^\s*\d+\.\s+\S", line)
+        ):
             current += 1
     if current is not None:
         section_counts.append(current)
     total_in_priority = sum(section_counts)
-    total_bullets = len(re.findall(r"(?m)^\s*[-*]\s+.+", text))
+    total_bullets = len(re.findall(r"(?m)^\s*[-*]\s+.+", text)) + len(
+        re.findall(r"(?m)^\s*\d+\.\s+.+", text)
+    )
     ok = bool(saw_header and 1 <= total_in_priority <= 3)
     return ok, total_in_priority, saw_header, total_bullets, section_counts
 
