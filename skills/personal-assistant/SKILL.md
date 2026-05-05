@@ -10,7 +10,7 @@ metadata: {"clawdbot":{"requires":{"bins":["m365-agent-cli"]}}}
 
 This skill outlines the standard operating procedures for acting as an Executive Assistant to the user. It leverages the `m365-agent-cli` Microsoft 365 CLI to actively manage email, calendar, tasks, and files.
 
-Note: `m365-agent-cli` is installed and updated separately from this skill repository. Recent upstream work (for example `markus-lassfolk/m365-agent-cli` PR #228) expands packaging and adds additional commands and agent workflows. When a command seems missing locally, verify your installed CLI version and consult its docs.
+Note: `m365-agent-cli` is installed and updated separately from this skill repository. Recent upstream work (for example `markus-lassfolk/m365-agent-cli`) expands packaging and adds additional commands and agent workflows. When a command seems missing locally, verify your installed CLI version and consult its docs.
 
 ## Deployment Modes: Direct vs. Delegated Access
 
