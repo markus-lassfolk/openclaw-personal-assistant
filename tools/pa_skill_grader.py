@@ -60,7 +60,11 @@ def _eval2_structure_carrier(line: str) -> bool:
 
 
 def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
-    """Owners must appear tied to the right transcript work items (not name-drops alone)."""
+    """
+    Pass if at least one transcript owner is clearly tied to their work item (eval expectation:
+    "at least one clear owner or assignee"). Table rows and list/table-like lines count; pure
+    name-drops without task linkage do not.
+    """
     rows = [ln for ln in text.splitlines() if "|" in ln and ln.strip().startswith("|")]
     sep = re.compile(r"^\s*\|[\s\-:|]+\|\s*$")
     data_rows = [ln for ln in rows if not sep.match(ln) and "owner" not in ln.lower()]
@@ -73,10 +77,13 @@ def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
 
     alice_row = any(row_links(r, "alice", ("contract", "revised")) for r in data_rows)
     bob_row = any(row_links(r, "bob", ("sla", "planner", "review")) for r in data_rows)
-    if alice_row and bob_row:
-        return True, "Table rows link Alice to contract work and Bob to SLA/Planner."
     if alice_row or bob_row:
-        return True, "Table row links at least one transcript owner to their work item."
+        detail = (
+            "Table rows link Alice to contract work and Bob to SLA/Planner."
+            if (alice_row and bob_row)
+            else "Table row links at least one transcript owner to their work item."
+        )
+        return True, detail
 
     alice_ok = bob_ok = False
     for ln in text.splitlines():
@@ -97,6 +104,34 @@ def _eval2_owner_task_linkage(text: str) -> tuple[bool, str]:
         f"No clear owner-item linkage (alice_row={alice_row}, bob_row={bob_row}, "
         f"alice_struct={alice_ok}, bob_struct={bob_ok}).",
     )
+
+
+# Match negation in the text immediately before a claimed "sent" / emailed phrase (substring).
+_SENT_CLAIM_NEGATION = re.compile(
+    r"(?:"
+    r"\b(?:not|never)\b|"
+    r"\b(?:haven't|hasn't|hadn't|didn't|don't|doesn't|won't|can't|cannot)\b|"
+    r"\b(?:have|has|had|do|does|did|will|would)\s+not\b|"
+    r"\bi'?ve\s+not\b|"
+    r"\bwithout\s+(?:sending|having\s+sent)\b|"
+    r"\bno\s+(?:mail|email)\s+(?:has\s+been\s+)?(?:sent|transmitted)\b"
+    r")"
+)
+
+
+def _eval2_unnegated_bad_sent_phrase(text: str, phrase: str) -> bool:
+    """True if phrase appears at least once without a negation scoped to that occurrence."""
+    t = text.lower()
+    p = phrase.lower()
+    start = 0
+    while True:
+        i = t.find(p, start)
+        if i == -1:
+            return False
+        window = t[max(0, i - 72) : i]
+        if not _SENT_CLAIM_NEGATION.search(window):
+            return True
+        start = i + len(p)
 
 
 def _eval3_inbox_priority_bullets(
@@ -192,9 +227,9 @@ def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> 
                 "sent the customer the",
                 "emailed the customer the",
             )
-            bad = any(p in t for p in bad_phrases)
+            bad = any(_eval2_unnegated_bad_sent_phrase(text, p) for p in bad_phrases)
             ok = not bad
-            return ok, f"Checked for false sent-mail claims (triggered={bad})."
+            return ok, f"Checked for false sent-mail claims (unnegated_match={bad})."
         if index == 2:
             ok = ("draft" in t or "awaiting" in t or "approval" in t) and (
                 "customer" in t or "kickoff" in t or "deck" in t

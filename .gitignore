@@ -4,5 +4,10 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Local Anthropic skill-creator eval output (see README)
 eval-workspace/
