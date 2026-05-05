@@ -134,37 +134,57 @@ def _eval2_unnegated_bad_sent_phrase(text: str, phrase: str) -> bool:
         start = i + len(p)
 
 
+_PLAIN_INBOX_PRIORITY_START = re.compile(
+    r"(?i)^\s*(?:inbox\s+priority|overdue(?:\s+tasks)?)\s*:\s*"
+)
+_PLAIN_SECTION_SIBLING = re.compile(r"(?i)^\s*(?:Today|Proactive)\s*:")
+
+
 def _eval3_inbox_priority_bullets(
     text: str,
 ) -> tuple[bool, int, bool, int, list[int]]:
     """
-    Sum bullets across every markdown section whose header mentions inbox/priority/overdue.
-    Pass iff at least one such header exists and the combined bullet count is 1-3 (max-three
-    inbox-priority callouts cannot be reset by starting a second matching section).
+    Sum bullets across inbox/priority/overdue sections from ATX headers or plain labels
+    (e.g. ``Inbox priority:`` as in the morning-briefing runbook template).
+
+    Pass iff at least one such section exists and the combined bullet/numbered count is 1-3.
 
     Returns (ok, total_in_priority_sections, saw_priority_header, total_bullets_in_doc, per_section_counts).
     """
     section_counts: list[int] = []
     current: int | None = None
     saw_header = False
+
+    def _close_current() -> None:
+        nonlocal current
+        if current is not None:
+            section_counts.append(current)
+            current = None
+
     for line in text.splitlines():
-        if re.match(r"^\s*#{1,6}\s+", line):
+        hdr_level = _markdown_header_level(line)
+        if hdr_level is not None:
             hdr = line.lower()
             if any(k in hdr for k in ("inbox", "priority", "overdue")):
-                if current is not None:
-                    section_counts.append(current)
+                _close_current()
                 current = 0
                 saw_header = True
             else:
-                if current is not None:
-                    section_counts.append(current)
-                    current = None
+                _close_current()
+        elif (pm := _PLAIN_INBOX_PRIORITY_START.match(line)):
+            _close_current()
+            current = 0
+            saw_header = True
+            tail = line[pm.end() :].strip()
+            if tail:
+                current += 1
+        elif current is not None and _PLAIN_SECTION_SIBLING.match(line):
+            _close_current()
         elif current is not None and (
             re.match(r"^\s*[-*]\s+\S", line) or re.match(r"^\s*\d+\.\s+\S", line)
         ):
             current += 1
-    if current is not None:
-        section_counts.append(current)
+    _close_current()
     total_in_priority = sum(section_counts)
     total_bullets = len(re.findall(r"(?m)^\s*[-*]\s+.+", text)) + len(
         re.findall(r"(?m)^\s*\d+\.\s+.+", text)
@@ -180,31 +200,57 @@ def _markdown_header_level(line: str) -> int | None:
 
 
 def _eval3_today_section_meetings(text: str) -> tuple[bool, str]:
-    """Meetings must appear inside a Today-style markdown section (header contains word 'Today')."""
+    """Meetings under an ATX Today heading or a plain ``Today:`` line (runbook template)."""
     lines = text.splitlines()
+    blocks: list[tuple[str, str]] = []
+
     for i, line in enumerate(lines):
         level = _markdown_header_level(line)
-        if level is None or not re.search(r"(?i)\btoday\b", line):
+        if level is not None and re.search(r"(?i)\btoday\b", line):
+            section_level = level
+            chunk: list[str] = []
+            for j in range(i + 1, len(lines)):
+                nxt = lines[j]
+                nxt_level = _markdown_header_level(nxt)
+                if nxt_level is not None and nxt_level <= section_level:
+                    break
+                chunk.append(nxt)
+            blocks.append(("\n".join(chunk), f"ATX Today depth {section_level}"))
+
+    for i, line in enumerate(lines):
+        m = re.match(r"(?i)^\s*Today\s*:\s*(.*)$", line)
+        if not m:
             continue
-        section_level = level
-        chunk: list[str] = []
+        chunk = []
+        rest = m.group(1).strip()
+        if rest:
+            chunk.append(rest)
         for j in range(i + 1, len(lines)):
             nxt = lines[j]
-            nxt_level = _markdown_header_level(nxt)
-            if nxt_level is not None and nxt_level <= section_level:
+            if _markdown_header_level(nxt) is not None:
+                break
+            if re.match(r"(?i)^\s*(?:Inbox\s+priority|Proactive)\s*:", nxt):
                 break
             chunk.append(nxt)
-        joined = "\n".join(chunk)
+        blocks.append(("\n".join(chunk), "Today: label"))
+
+    if not blocks:
+        return False, "No Today section (no ATX header with 'Today' and no 'Today:' label line)."
+
+    for joined, desc in blocks:
         low = joined.lower()
         has_a = "10:00" in joined or "standup" in low
         has_b = "14:00" in joined or "vendor" in low
-        ok = has_a and has_b
-        return ok, (
-            f"Today block (nested subheadings ok if deeper than level {section_level}) "
-            f"lines={len(chunk)}: 10:00/standup={has_a}, 14:00/vendor={has_b} "
-            f"(require both under a header matching 'Today')."
-        )
-    return False, "No markdown header containing the word 'Today' was found."
+        if has_a and has_b:
+            nlines = len(joined.splitlines()) if joined else 0
+            return True, (
+                f"Today block ({desc}) content_lines={nlines}: "
+                f"10:00/standup={has_a}, 14:00/vendor={has_b}."
+            )
+
+    return False, (
+        "Found Today block(s) but none listed both meetings (ATX and 'Today:' label formats checked)."
+    )
 
 
 def grade_expectation(eval_id: int, index: int, text: str, expectation: str) -> tuple[bool, str]:
