@@ -173,25 +173,37 @@ def _eval3_inbox_priority_bullets(
     return ok, total_in_priority, saw_header, total_bullets, section_counts
 
 
+def _markdown_header_level(line: str) -> int | None:
+    """Return ATX heading depth (1–6) or None if the line is not a markdown header."""
+    m = re.match(r"^(\s*)(#{1,6})(?:\s+|$)", line)
+    return len(m.group(2)) if m else None
+
+
 def _eval3_today_section_meetings(text: str) -> tuple[bool, str]:
     """Meetings must appear inside a Today-style markdown section (header contains word 'Today')."""
     lines = text.splitlines()
     for i, line in enumerate(lines):
-        if re.match(r"^\s*#{1,6}\s+", line) and re.search(r"(?i)\btoday\b", line):
-            chunk: list[str] = []
-            for j in range(i + 1, len(lines)):
-                if re.match(r"^\s*#{1,6}\s+", lines[j]):
-                    break
-                chunk.append(lines[j])
-            joined = "\n".join(chunk)
-            low = joined.lower()
-            has_a = "10:00" in joined or "standup" in low
-            has_b = "14:00" in joined or "vendor" in low
-            ok = has_a and has_b
-            return ok, (
-                f"Today-section lines={len(chunk)}: 10:00/standup={has_a}, 14:00/vendor={has_b} "
-                f"(require both under a header matching 'Today')."
-            )
+        level = _markdown_header_level(line)
+        if level is None or not re.search(r"(?i)\btoday\b", line):
+            continue
+        section_level = level
+        chunk: list[str] = []
+        for j in range(i + 1, len(lines)):
+            nxt = lines[j]
+            nxt_level = _markdown_header_level(nxt)
+            if nxt_level is not None and nxt_level <= section_level:
+                break
+            chunk.append(nxt)
+        joined = "\n".join(chunk)
+        low = joined.lower()
+        has_a = "10:00" in joined or "standup" in low
+        has_b = "14:00" in joined or "vendor" in low
+        ok = has_a and has_b
+        return ok, (
+            f"Today block (nested subheadings ok if deeper than level {section_level}) "
+            f"lines={len(chunk)}: 10:00/standup={has_a}, 14:00/vendor={has_b} "
+            f"(require both under a header matching 'Today')."
+        )
     return False, "No markdown header containing the word 'Today' was found."
 
 
