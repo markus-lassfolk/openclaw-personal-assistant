@@ -1,0 +1,8 @@
+config/user.json
+state/
+logs/
+.DS_Store
+Thumbs.db
+
+# Local Anthropic skill-creator eval output (see README)
+eval-workspace/

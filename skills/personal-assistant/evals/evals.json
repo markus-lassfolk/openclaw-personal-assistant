@@ -1,0 +1,38 @@
+{
+  "skill_name": "personal-assistant",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I am buried in email after PTO—triage my inbox, propose three concrete next actions, and draft replies where appropriate. Do not send any email; leave everything as drafts or a checklist for my approval.",
+      "expected_output": "Prioritized triage with at most three highlighted actions; any mail work is explicitly draft-only; user approval is required before send.",
+      "files": [],
+      "expectations": [
+        "The response states or implies that outbound email will not be sent without explicit user approval",
+        "The response proposes at most three distinct prioritized actions or threads (not an unfocused dump)",
+        "The response references triage, inbox, or backlog context appropriate to post-PTO catch-up"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Here is a short fictional meeting transcript for testing only:\\n\\nAlice: We will send the revised contract by Friday.\\nBob: Please add a Planner task for me to review the SLA.\\nAlice: I will email the customer the kickoff deck tonight.\\n\\nExtract action items with owners, suggest tasks for the task system, and draft any promised outbound email as drafts only. Do not send.",
+      "expected_output": "Structured action items; tasks identified; promised customer email handled as draft; no send.",
+      "files": [],
+      "expectations": [
+        "The response lists action items or tasks with at least one clear owner or assignee where stated in the transcript",
+        "The response does not claim that an email was sent to the customer",
+        "The response treats the customer email or kickoff deck commitment as something to draft or queue for approval rather than as already delivered"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Produce a weekday morning briefing for me in under 250 words. Assume I have two meetings today (10:00 standup, 14:00 vendor call) and three overdue tasks (expenses, slide deck, HR form). Use the personal-assistant morning briefing style: meetings with brief context, max three inbox-priority lines, and a short proactive section. Do not invent real email content—use placeholders if needed.",
+      "expected_output": "Scannable briefing under ~250 words with sections for today, inbox priority (≤3), and proactive note; no fabricated private details.",
+      "files": [],
+      "expectations": [
+        "The response is clearly under roughly 300 words (briefing discipline)",
+        "The response mentions both meetings or their times in a Today-style section",
+        "The response limits explicit inbox or task callouts to three or fewer items or clearly groups extras as secondary"
+      ]
+    }
+  ]
+}
